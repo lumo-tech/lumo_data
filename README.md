@@ -1,7 +1,8 @@
 # lumo.data
 
 ```shell
-pip install lumo_data
+# pip install lumo_data
+pip install git+https://github.com/sailist/lumo
 ```
 
 # howtouse
