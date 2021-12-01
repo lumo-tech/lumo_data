@@ -13,9 +13,10 @@ class BatchDataset(Dataset):
 
 
 class DBDataset(BatchDataset):
-    def __init__(self, database, transform=None):
+    def __init__(self, database, transform=None, return_type='value'):
         self.data = PList(database)
         self.transform = transform
+        self.return_type = return_type
 
         self._hooked = False
 
@@ -33,7 +34,7 @@ class DBDataset(BatchDataset):
         return res
 
     def _get_from_db(self, item):
-        return self.data.gets(item)[0]
+        return self.data.gets(item, return_type=self.return_type)[0]
 
     def __getitem__(self, item):
         if not self._hooked:
@@ -47,4 +48,4 @@ class DBDataset(BatchDataset):
     def notify(self, ids):
         self._hooked = True
         self.ids = {id: i for i, id in enumerate(ids)}
-        self.batch = self.data.gets(ids)
+        self.batch = self.data.gets(ids, return_type=self.return_type)
