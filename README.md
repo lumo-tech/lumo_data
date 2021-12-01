@@ -2,7 +2,7 @@
 
 ```shell
 # pip install lumo_data
-pip install git+https://github.com/sailist/lumo
+pip install git+https://github.com/sailist/lumo_data
 ```
 
 # howtouse

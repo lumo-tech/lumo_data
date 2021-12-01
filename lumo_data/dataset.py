@@ -27,6 +27,9 @@ class DBDataset(BatchDataset):
         if self.ids is None:
             raise ValueError('This exception raised because using DBBatchSampler to `notify` DBDataset'
                              ' but not actually use the sampler in DataLoader.')
+        if item not in self.ids:
+            return self._get_from_db(item)
+
         reid = self.ids[item]
         res = self.batch[reid]
         if self.transform is not None:
@@ -34,7 +37,10 @@ class DBDataset(BatchDataset):
         return res
 
     def _get_from_db(self, item):
-        return self.data.gets(item, return_type=self.return_type)[0]
+        try:
+            return self.data.gets(item, return_type=self.return_type)[0]
+        except IndexError:
+            raise IndexError(f'list index out of range {item}')
 
     def __getitem__(self, item):
         if not self._hooked:

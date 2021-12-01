@@ -63,6 +63,7 @@ class NotifyIterableDatasetFetcher(NotifyedFetcher):
 class NotifyMapDatasetFetcher(NotifyedFetcher):
     def fetch(self, possibly_batched_index):
         super(NotifyMapDatasetFetcher, self).fetch(possibly_batched_index)
+        print(possibly_batched_index)
         if self.auto_collation:
             data = [self.dataset[idx] for idx in possibly_batched_index]
         else:
@@ -197,6 +198,13 @@ class NotifySingleProcessDataLoaderIter(_BaseDataLoaderIter):
 
         self._dataset_fetcher = create_fetcher(
             self._dataset_kind, self._dataset, self._auto_collation, self._collate_fn, self._drop_last)
+
+    def _next_data(self):
+        index = self._next_index()  # may raise StopIteration
+        data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+        if self._pin_memory:
+            data = _utils.pin_memory.pin_memory(data)
+        return data
 
 
 _DATASET_KIND_MAP = 0

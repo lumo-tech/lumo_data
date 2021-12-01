@@ -1,15 +1,5 @@
-from functools import wraps
-
-from dbrecord import PDict
 from torch.utils.data.dataloader import default_collate
 
-from lumo_data import DBDataset, DataLoader
-from torch.utils.data import DataLoader
-import os
-
-import torch.distributed
-
-torch.distributed.init_process_group(backend="nccl")
 
 class CollateBase:
 
@@ -38,26 +28,3 @@ class CollateBase:
 
     def after_collate(self, batch):
         return batch
-
-
-class M(CollateBase):
-
-    # def collate(self, sample_list):
-    #     print(sample_list)
-    #     return super().collate(sample_list)
-
-    def after_collate(self, batch):
-        if isinstance(batch, dict):
-            assert isinstance(batch, dict) and 'b' not in batch
-        return {'b': batch}
-
-
-if os.path.exists('temp.sql'):
-    os.remove('temp.sql')
-dic = PDict('temp.sql')
-for i in range(1000):
-    dic[f'a{i}'] = i
-dic.flush()
-dataset = DBDataset('temp.sql')
-for batch in DataLoader(dataset, num_workers=1, batch_size=16, collate_fn=M()):
-    print(batch)
