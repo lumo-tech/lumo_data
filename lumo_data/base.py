@@ -8,18 +8,27 @@ from typing import Union
 import torch
 from torch._utils import ExceptionWrapper
 from torch.utils.data import _utils
-from torch.utils.data._utils import signal_handling, HAS_NUMPY, MP_STATUS_CHECK_INTERVAL
+from torch.utils.data._utils import signal_handling
 from torch.utils.data._utils.fetch import _BaseDatasetFetcher
-from torch.utils.data._utils.worker import _generate_state, WorkerInfo, ManagerWatchdog, _ResumeIteration, \
+from torch.utils.data._utils.worker import WorkerInfo, ManagerWatchdog, _ResumeIteration, \
     _IterableDatasetStopIteration
 from torch.utils.data.dataloader import _BaseDataLoaderIter, _MultiProcessingDataLoaderIter
 
+try:
+    import numpy
+
+    HAS_NUMPY = True
+except ModuleNotFoundError:
+    HAS_NUMPY = False
+
+MP_STATUS_CHECK_INTERVAL = 5.0
 
 
 class NotifyedFetcher(_BaseDatasetFetcher):
 
     def __init__(self, dataset, auto_collation, collate_fn, drop_last):
         super().__init__(dataset, auto_collation, collate_fn, drop_last)
+        from lumo_data import BatchDataset
         if isinstance(dataset, BatchDataset):
             self._pre_notify = True
         else:
@@ -86,10 +95,10 @@ def _worker_loop(dataset_kind, dataset, index_queue, data_queue, done_event,
         seed = base_seed + worker_id
         random.seed(seed)
         torch.manual_seed(seed)
-        if HAS_NUMPY:
-            np_seed = _generate_state(base_seed, worker_id)
-            import numpy as np
-            np.random.seed(np_seed)
+        # if HAS_NUMPY:
+        #     np_seed = _generate_state(base_seed, worker_id)
+        #     import numpy as np
+        #     np.random.seed(np_seed)
 
         global _worker_info
         _worker_info = WorkerInfo(id=worker_id, num_workers=num_workers,

@@ -12,7 +12,7 @@ pip install dist/$(python3 install.py) --user
 
 setup(
     name='lumo_data',
-    version='0.1.0',
+    version='0.1.1',
     description='A bunch of optimzed data-related class for replacing the original pytorch DataLoader, Dataset, etc..',
     url='https://github.com/pytorch-lumo/lumo_data',
     author='sailist',
